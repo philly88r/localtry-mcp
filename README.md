@@ -104,6 +104,10 @@ requirements. Creating a private custom app connects this server to a ChatGPT
 account or workspace; publishing in the public ChatGPT app directory is a
 separate OpenAI review process.
 
+The non-secret public-review listing, starter prompts, test cases, and release
+notes are maintained in
+[`docs/openai-submission.md`](docs/openai-submission.md).
+
 ## Design principles
 
 - No raw SQL tool.

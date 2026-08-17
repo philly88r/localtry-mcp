@@ -1,6 +1,6 @@
 {
   "name": "localtry-mcp",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Tenant-isolated Model Context Protocol server for LocalTry",
   "license": "MIT",

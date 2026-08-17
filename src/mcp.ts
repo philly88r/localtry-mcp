@@ -20,14 +20,18 @@ type McpEnv = Omit<Env, "LOCALTRY_API"> & {
 };
 
 export function createLocalTryMcpServer(env: McpEnv) {
-  const server = new McpServer({ name: "LocalTry", version: "0.1.0" });
+  const server = new McpServer({ name: "LocalTry", version: "1.0.0" });
 
   server.registerTool(
     "get_workspace_overview",
     {
       description:
         "Inspect the authenticated business's current LocalTry pages, modules, fields, workflows, integrations, and customization history.",
-      annotations: { readOnlyHint: true },
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async () => {
       const tenant = requireScope(currentTenant(), "workspace:read");
@@ -66,7 +70,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
           .optional(),
         limit: z.number().int().min(1).max(100).default(25),
       },
-      annotations: { readOnlyHint: true },
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "crm:read");
@@ -96,7 +104,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
         values: z.record(z.string(), z.unknown()),
         reason: z.string().min(1).max(500),
       },
-      annotations: { readOnlyHint: false, destructiveHint: false },
+      annotations: {
+        readOnlyHint: false,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "crm:write");
@@ -114,7 +126,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
       inputSchema: {
         request: z.string().min(10).max(10_000),
       },
-      annotations: { readOnlyHint: true },
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "workspace:read");
@@ -138,7 +154,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
         planId: z.string().min(1).max(200),
         approvalToken: z.string().min(1).max(500),
       },
-      annotations: { readOnlyHint: false, destructiveHint: false },
+      annotations: {
+        readOnlyHint: false,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "workspace:write");
@@ -161,7 +181,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
       inputSchema: {
         limit: z.number().int().min(1).max(100).default(25),
       },
-      annotations: { readOnlyHint: true },
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "workspace:read");
@@ -185,7 +209,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
         versionId: z.string().min(1).max(200),
         approvalToken: z.string().min(1).max(500),
       },
-      annotations: { readOnlyHint: false, destructiveHint: true },
+      annotations: {
+        readOnlyHint: false,
+        openWorldHint: false,
+        destructiveHint: true,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "workspace:write");
@@ -209,7 +237,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
         workflowId: z.number().int().positive(),
         input: z.record(z.string(), z.unknown()).default({}),
       },
-      annotations: { readOnlyHint: false, destructiveHint: false },
+      annotations: {
+        readOnlyHint: false,
+        openWorldHint: true,
+        destructiveHint: true,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "workflows:run");
@@ -236,7 +268,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
           .max(12)
           .optional(),
       },
-      annotations: { readOnlyHint: false, destructiveHint: false },
+      annotations: {
+        readOnlyHint: false,
+        openWorldHint: true,
+        destructiveHint: true,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "assistant:run");
@@ -254,7 +290,11 @@ export function createLocalTryMcpServer(env: McpEnv) {
       inputSchema: {
         limit: z.number().int().min(1).max(100).default(25),
       },
-      annotations: { readOnlyHint: true },
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (input) => {
       const tenant = requireScope(currentTenant(), "crm:read");
