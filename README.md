@@ -15,8 +15,24 @@ and permission set.
 - Inspect the complete tenant workspace architecture.
 - Plan and apply tenant-only workspace customizations.
 - Run saved workflows.
+- Ask LocalTry Command to carry out multi-step business operations.
 - Review customization versions and restore an earlier version.
 - Read a tenant-scoped activity and audit history.
+
+## Available tools
+
+| Tool | Purpose |
+| --- | --- |
+| `get_workspace_overview` | Inspect the connected business's pages, modules, fields, workflows, integrations, and customization history. |
+| `search_crm` | Search tenant-scoped CRM records without exposing raw SQL. |
+| `create_or_update_crm_record` | Create or update a validated CRM record. |
+| `plan_workspace_change` | Create a versioned customization plan without applying it. |
+| `apply_workspace_change` | Apply an explicitly approved plan to the connected workspace only. |
+| `list_workspace_versions` | Review the workspace's customization history. |
+| `restore_workspace_version` | Restore an approved earlier version for the connected workspace. |
+| `run_workflow` | Run one of the business's saved workflows. |
+| `run_localtry_command` | Use LocalTry Command for verified, multi-step CRM and business operations. |
+| `get_recent_activity` | Review recent CRM, workflow, and customization activity. |
 
 ## The tenant boundary
 
@@ -39,19 +55,26 @@ through the private service contract in
 
 ## Remote endpoint
 
-Production is designed to use:
+The production endpoint is live:
 
 ```text
 https://mcp.localtry.com/mcp
 ```
 
-The endpoint is not live until the LocalTry authorization and internal bridge
-routes described below are deployed and the Worker receives its production KV
-and service bindings.
+Health check:
+
+```text
+https://mcp.localtry.com/health
+```
+
+Clients discover OAuth 2.1 metadata automatically. Authorization supports
+PKCE, dynamic client registration, short-lived access tokens, and refresh
+tokens. Users sign in to LocalTry and approve one visible workspace; no LocalTry
+API key is copied into the MCP client.
 
 ## Local development
 
-Requirements: Node.js 24 or newer and a Cloudflare account.
+Requirements: Node.js 20 or newer and a Cloudflare account.
 
 ```bash
 npm install
@@ -67,10 +90,8 @@ Create an OAuth KV namespace and replace the placeholder namespace ID in
 npx wrangler kv namespace create OAUTH_KV
 ```
 
-The service binding must point to a LocalTry deployment implementing:
-
-- `POST /api/internal/mcp/exchange`
-- `POST /api/internal/mcp/execute`
+The `LOCALTRY_API` service binding must point to the named
+`LocalTryMcpBridge` WorkerEntrypoint exported by the LocalTry CRM deployment.
 
 See the [bridge contract](docs/localtry-bridge-contract.md) for the exact trust
 boundary.
@@ -79,7 +100,9 @@ boundary.
 
 ChatGPT supports remote MCP apps through developer mode. See
 [`docs/chatgpt.md`](docs/chatgpt.md) for the connection flow and current plan
-requirements.
+requirements. Creating a private custom app connects this server to a ChatGPT
+account or workspace; publishing in the public ChatGPT app directory is a
+separate OpenAI review process.
 
 ## Design principles
 
@@ -93,10 +116,10 @@ requirements.
 
 ## Status
 
-This repository contains the customer-facing MCP Worker and its tested tenant
-boundary. Production enablement additionally requires the LocalTry CRM bridge,
-OAuth consent screen, KV binding, custom domain, and end-to-end authorization
-tests.
+Production is deployed at `mcp.localtry.com`. OAuth authorization, refresh
+tokens, MCP initialization, tool discovery, tenant binding, and a live workspace
+read have been verified end to end. The public Worker reaches the CRM only
+through a private Cloudflare service binding and has no database binding.
 
 ## License
 

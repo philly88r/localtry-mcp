@@ -4,9 +4,16 @@ The public MCP Worker never connects directly to D1 and never accepts a tenant
 identifier from a tool call. It communicates with the LocalTry CRM through a
 Cloudflare service binding named `LOCALTRY_API`.
 
-## Authorization exchange
+## Private RPC contract
 
-`POST /api/internal/mcp/exchange`
+The CRM Worker exports a named `WorkerEntrypoint` named
+`LocalTryMcpBridge`. The public MCP Worker receives it through the
+`LOCALTRY_API` service binding. No public HTTP bridge route or shared bridge
+secret is required.
+
+### Authorization exchange
+
+`exchangeAuthorizationCode(input)`
 
 Input:
 
@@ -40,9 +47,25 @@ Output:
 }
 ```
 
-## Tool execution
+### Tool execution
 
-`POST /api/internal/mcp/execute`
+`execute(input)`
+
+Input:
+
+```json
+{
+  "actor": {
+    "userId": "123",
+    "businessId": 42,
+    "membershipId": null,
+    "role": "owner",
+    "scopes": ["crm:read", "workspace:read"]
+  },
+  "operation": "workspace.overview",
+  "input": {}
+}
+```
 
 The Worker supplies the OAuth-bound actor, operation, and validated tool input.
 The CRM must independently re-check membership status, role, entitlements,

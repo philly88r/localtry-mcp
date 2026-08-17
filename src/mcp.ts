@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { executeLocalTry } from "./localtry-client";
+import type { LocalTryRpcService } from "./localtry-client";
 import { currentTenant, requireScope } from "./tenant";
 
 function textResult(result: unknown) {
@@ -14,7 +15,11 @@ function textResult(result: unknown) {
   };
 }
 
-export function createLocalTryMcpServer(env: Env) {
+type McpEnv = Omit<Env, "LOCALTRY_API"> & {
+  LOCALTRY_API: LocalTryRpcService;
+};
+
+export function createLocalTryMcpServer(env: McpEnv) {
   const server = new McpServer({ name: "LocalTry", version: "0.1.0" });
 
   server.registerTool(
@@ -210,6 +215,33 @@ export function createLocalTryMcpServer(env: Env) {
       const tenant = requireScope(currentTenant(), "workflows:run");
       return textResult(
         await executeLocalTry(env.LOCALTRY_API, tenant, "workflow.run", input),
+      );
+    },
+  );
+
+  server.registerTool(
+    "run_localtry_command",
+    {
+      description:
+        "Talk to LocalTry Command using the authenticated business's live architecture, CRM data, integrations, and registered actions. It executes real work, verifies results, and asks for missing information instead of inventing it.",
+      inputSchema: {
+        prompt: z.string().min(1).max(4_000),
+        history: z
+          .array(
+            z.object({
+              role: z.enum(["user", "assistant"]),
+              content: z.string().min(1).max(8_000),
+            }),
+          )
+          .max(12)
+          .optional(),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false },
+    },
+    async (input) => {
+      const tenant = requireScope(currentTenant(), "assistant:run");
+      return textResult(
+        await executeLocalTry(env.LOCALTRY_API, tenant, "command.run", input),
       );
     },
   );

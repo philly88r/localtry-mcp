@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   assertNoTenantSelector,
   executeLocalTry,
-  type FetchService,
+  type LocalTryRpcService,
 } from "../src/localtry-client";
 import type { TenantAuth } from "../src/contracts";
 
 const tenant: TenantAuth = {
-  userId: "user-42",
+  userId: "42",
   businessId: 42,
   membershipId: null,
   role: "owner",
@@ -27,11 +27,17 @@ describe("tenant boundary", () => {
   });
 
   it("injects the OAuth-bound tenant into internal operations", async () => {
-    let body: unknown;
-    const service: FetchService = {
-      async fetch(_input, init) {
-        body = JSON.parse(String(init?.body));
-        return Response.json({ ok: true });
+    let body: Parameters<LocalTryRpcService["execute"]>[0] | undefined;
+    const service: LocalTryRpcService = {
+      async health() {
+        return { ok: true };
+      },
+      async exchangeAuthorizationCode() {
+        throw new Error("not used");
+      },
+      async execute(input) {
+        body = input;
+        return { ok: true };
       },
     };
 
@@ -39,7 +45,7 @@ describe("tenant boundary", () => {
 
     expect(body).toMatchObject({
       actor: {
-        userId: "user-42",
+        userId: "42",
         businessId: 42,
         role: "owner",
       },
@@ -48,10 +54,16 @@ describe("tenant boundary", () => {
     });
   });
 
-  it("does not leak internal error bodies from non-JSON services", async () => {
-    const service: FetchService = {
-      async fetch() {
-        return new Response("Operation not permitted", { status: 403 });
+  it("propagates a private RPC authorization failure", async () => {
+    const service: LocalTryRpcService = {
+      async health() {
+        return { ok: true };
+      },
+      async exchangeAuthorizationCode() {
+        throw new Error("not used");
+      },
+      async execute() {
+        throw new Error("Operation not permitted");
       },
     };
 

@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "localtry-mcp",
+  "account_id": "21106a436b21f19b551ba4ca8820aa6e",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-17",
   "compatibility_flags": [
@@ -17,13 +18,20 @@
   "kv_namespaces": [
     {
       "binding": "OAUTH_KV",
-      "id": "REPLACE_WITH_OAUTH_KV_NAMESPACE_ID"
+      "id": "f53ac54e1c4341f291b5a1be58c08070"
     }
   ],
   "services": [
     {
       "binding": "LOCALTRY_API",
-      "service": "localtry-crm"
+      "service": "localtry-crm",
+      "entrypoint": "LocalTryMcpBridge"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "mcp.localtry.com",
+      "custom_domain": true
     }
   ]
 }

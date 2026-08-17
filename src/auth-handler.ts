@@ -8,8 +8,12 @@ import {
   supportedScopes,
   type PendingAuthorization,
 } from "./contracts";
+import type { LocalTryRpcService } from "./localtry-client";
 
-type AppEnv = Env & { OAUTH_PROVIDER: OAuthHelpers };
+type AppEnv = Omit<Env, "LOCALTRY_API"> & {
+  LOCALTRY_API: LocalTryRpcService;
+  OAUTH_PROVIDER: OAuthHelpers;
+};
 
 const HANDOFF_TTL_SECONDS = 600;
 const HANDOFF_COOKIE = "__Host-LOCALTRY_MCP_HANDOFF";
@@ -100,23 +104,25 @@ async function completeLocalTryAuthorization(request: Request, env: AppEnv) {
   }
 
   const pending = JSON.parse(serialized) as PendingAuthorization;
-  const exchangeResponse = await env.LOCALTRY_API.fetch(
-    "https://localtry.internal/api/internal/mcp/exchange",
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ code, handoff }),
-    },
-  );
-  if (!exchangeResponse.ok) {
+  let rawIdentity: unknown;
+  try {
+    rawIdentity = await env.LOCALTRY_API.exchangeAuthorizationCode({
+      code,
+      handoff,
+    });
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "localtry_authorization_exchange_failed",
+        message: error instanceof Error ? error.message : "Unknown RPC error",
+      }),
+    );
     return new Response("LocalTry could not verify this authorization.", {
       status: 401,
     });
   }
 
-  const identity = authorizationExchangeSchema.parse(
-    await exchangeResponse.json(),
-  );
+  const identity = authorizationExchangeSchema.parse(rawIdentity);
   if (Date.parse(identity.codeExpiresAt) <= Date.now()) {
     return new Response("LocalTry authorization code expired.", { status: 401 });
   }
@@ -160,7 +166,18 @@ export const authHandler = {
       });
     }
     if (url.pathname === "/health") {
-      return Response.json({ ok: true });
+      try {
+        const dependency = await env.LOCALTRY_API.health();
+        return Response.json({ ok: dependency.ok, crm: dependency.ok });
+      } catch (error) {
+        console.error(
+          JSON.stringify({
+            event: "localtry_rpc_health_failed",
+            message: error instanceof Error ? error.message : "Unknown RPC error",
+          }),
+        );
+        return Response.json({ ok: false, crm: false }, { status: 503 });
+      }
     }
     if (url.pathname === "/authorize") {
       return beginAuthorization(request, env);

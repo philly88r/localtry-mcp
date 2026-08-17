@@ -7,6 +7,8 @@ export const supportedScopes = [
   "workspace:write",
   "workflows:run",
   "publish:write",
+  "assistant:run",
+  "offline_access",
 ] as const;
 
 export type LocalTryScope = (typeof supportedScopes)[number];
@@ -36,7 +38,8 @@ export type LocalTryOperation =
   | "crm.search"
   | "crm.mutate"
   | "workflow.run"
-  | "activity.recent";
+  | "activity.recent"
+  | "command.run";
 
 export type PendingAuthorization = {
   oauthRequest: {

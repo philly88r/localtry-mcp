@@ -3,11 +3,15 @@ import { createMcpHandler } from "agents/mcp/server";
 import { authHandler } from "./auth-handler";
 import { supportedScopes } from "./contracts";
 import { createLocalTryMcpServer } from "./mcp";
+import type { LocalTryRpcService } from "./localtry-client";
 
 const MCP_ORIGIN = "https://mcp.localtry.com";
 const MCP_RESOURCE = `${MCP_ORIGIN}/mcp`;
 
-type AppEnv = Env & { OAUTH_PROVIDER: OAuthHelpers };
+type AppEnv = Omit<Env, "LOCALTRY_API"> & {
+  LOCALTRY_API: LocalTryRpcService;
+  OAUTH_PROVIDER: OAuthHelpers;
+};
 
 const protectedMcpHandler = {
   fetch(request, env, ctx) {
