@@ -16,7 +16,7 @@ type AppEnv = Omit<Env, "LOCALTRY_API"> & {
   OPENAI_APPS_CHALLENGE?: string;
 };
 
-const HANDOFF_TTL_SECONDS = 600;
+const HANDOFF_TTL_SECONDS = 30 * 60;
 const HANDOFF_COOKIE = "__Host-LOCALTRY_MCP_HANDOFF";
 
 function cookieValue(request: Request, name: string): string | null {
