@@ -13,6 +13,7 @@ import type { LocalTryRpcService } from "./localtry-client";
 type AppEnv = Omit<Env, "LOCALTRY_API"> & {
   LOCALTRY_API: LocalTryRpcService;
   OAUTH_PROVIDER: OAuthHelpers;
+  OPENAI_APPS_CHALLENGE?: string;
 };
 
 const HANDOFF_TTL_SECONDS = 600;
@@ -157,6 +158,14 @@ async function completeLocalTryAuthorization(request: Request, env: AppEnv) {
 export const authHandler = {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/.well-known/openai-apps-challenge") {
+      if (!env.OPENAI_APPS_CHALLENGE) {
+        return new Response("Not found", { status: 404 });
+      }
+      return new Response(env.OPENAI_APPS_CHALLENGE, {
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      });
+    }
     if (url.pathname === "/") {
       return Response.json({
         name: "LocalTry MCP",
