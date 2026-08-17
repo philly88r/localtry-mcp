@@ -1,0 +1,27 @@
+{
+  "name": "localtry-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tenant-isolated Model Context Protocol server for LocalTry",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "check": "npm run typecheck && npm test",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types"
+  },
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "0.10.3",
+    "@modelcontextprotocol/server": "2.0.0-beta.5",
+    "agents": "0.20.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "vitest": "4.1.10",
+    "wrangler": "4.123.0"
+  }
+}

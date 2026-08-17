@@ -1,0 +1,173 @@
+import {
+  AuthorizationError,
+  type AuthRequest,
+  type OAuthHelpers,
+} from "@cloudflare/workers-oauth-provider";
+import {
+  authorizationExchangeSchema,
+  supportedScopes,
+  type PendingAuthorization,
+} from "./contracts";
+
+type AppEnv = Env & { OAUTH_PROVIDER: OAuthHelpers };
+
+const HANDOFF_TTL_SECONDS = 600;
+const HANDOFF_COOKIE = "__Host-LOCALTRY_MCP_HANDOFF";
+
+function cookieValue(request: Request, name: string): string | null {
+  const cookie = request.headers.get("cookie") ?? "";
+  for (const part of cookie.split(";")) {
+    const [key, ...value] = part.trim().split("=");
+    if (key === name) return decodeURIComponent(value.join("="));
+  }
+  return null;
+}
+
+function handoffCookie(value: string, maxAge = HANDOFF_TTL_SECONDS): string {
+  return `${HANDOFF_COOKIE}=${encodeURIComponent(value)}; HttpOnly; Secure; Path=/; SameSite=Lax; Max-Age=${maxAge}`;
+}
+
+function authorizationError(error: AuthorizationError): Response {
+  if (!error.redirectUri) {
+    return new Response(error.description, { status: 400 });
+  }
+  const redirect = new URL(error.redirectUri);
+  redirect.searchParams.set("error", error.code);
+  redirect.searchParams.set("error_description", error.description);
+  if (error.state) redirect.searchParams.set("state", error.state);
+  if (error.issuer) redirect.searchParams.set("iss", error.issuer);
+  return Response.redirect(redirect, 302);
+}
+
+async function beginAuthorization(request: Request, env: AppEnv) {
+  let oauthRequest: AuthRequest;
+  try {
+    oauthRequest = await env.OAUTH_PROVIDER.parseAuthRequest(request);
+  } catch (error) {
+    if (error instanceof AuthorizationError) return authorizationError(error);
+    throw error;
+  }
+
+  const client = await env.OAUTH_PROVIDER.lookupClient(oauthRequest.clientId);
+  if (!client) return new Response("Unknown OAuth client", { status: 400 });
+  const clientName = client.clientName?.trim() || "MCP client";
+
+  const handoff = crypto.randomUUID();
+  const pending: PendingAuthorization = {
+    oauthRequest,
+    clientName,
+    createdAt: new Date().toISOString(),
+  };
+  await env.OAUTH_KV.put(`localtry:handoff:${handoff}`, JSON.stringify(pending), {
+    expirationTtl: HANDOFF_TTL_SECONDS,
+  });
+
+  const redirect = new URL(env.LOCALTRY_AUTH_URL);
+  redirect.searchParams.set("handoff", handoff);
+  redirect.searchParams.set(
+    "return_to",
+    `${new URL(request.url).origin}/oauth/callback`,
+  );
+  redirect.searchParams.set("client_name", clientName);
+  redirect.searchParams.set("scope", oauthRequest.scope.join(" "));
+
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: redirect.toString(),
+      "set-cookie": handoffCookie(handoff),
+    },
+  });
+}
+
+async function completeLocalTryAuthorization(request: Request, env: AppEnv) {
+  const url = new URL(request.url);
+  const handoff = url.searchParams.get("state");
+  const code = url.searchParams.get("code");
+  const cookieHandoff = cookieValue(request, HANDOFF_COOKIE);
+
+  if (!handoff || !code || handoff !== cookieHandoff) {
+    return new Response("Invalid or expired authorization handoff.", {
+      status: 400,
+    });
+  }
+
+  const key = `localtry:handoff:${handoff}`;
+  const serialized = await env.OAUTH_KV.get(key);
+  await env.OAUTH_KV.delete(key);
+  if (!serialized) {
+    return new Response("Authorization handoff expired.", { status: 400 });
+  }
+
+  const pending = JSON.parse(serialized) as PendingAuthorization;
+  const exchangeResponse = await env.LOCALTRY_API.fetch(
+    "https://localtry.internal/api/internal/mcp/exchange",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code, handoff }),
+    },
+  );
+  if (!exchangeResponse.ok) {
+    return new Response("LocalTry could not verify this authorization.", {
+      status: 401,
+    });
+  }
+
+  const identity = authorizationExchangeSchema.parse(
+    await exchangeResponse.json(),
+  );
+  if (Date.parse(identity.codeExpiresAt) <= Date.now()) {
+    return new Response("LocalTry authorization code expired.", { status: 401 });
+  }
+
+  const supported = new Set<string>(supportedScopes);
+  const allowed = new Set<string>(identity.scopes);
+  const grantedScopes = pending.oauthRequest.scope.filter(
+    (scope) => supported.has(scope) && allowed.has(scope),
+  );
+
+  const { redirectTo } = await env.OAUTH_PROVIDER.completeAuthorization({
+    request: pending.oauthRequest,
+    userId: identity.userId,
+    metadata: {
+      businessId: identity.businessId,
+      clientName: pending.clientName,
+      role: identity.role,
+    },
+    scope: grantedScopes,
+    props: { ...identity, scopes: grantedScopes },
+  });
+
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: redirectTo,
+      "set-cookie": handoffCookie("", 0),
+    },
+  });
+}
+
+export const authHandler = {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/") {
+      return Response.json({
+        name: "LocalTry MCP",
+        endpoint: "/mcp",
+        authentication: "OAuth 2.1",
+        tenantIsolation: "token-bound",
+      });
+    }
+    if (url.pathname === "/health") {
+      return Response.json({ ok: true });
+    }
+    if (url.pathname === "/authorize") {
+      return beginAuthorization(request, env);
+    }
+    if (url.pathname === "/oauth/callback") {
+      return completeLocalTryAuthorization(request, env);
+    }
+    return new Response("Not found", { status: 404 });
+  },
+} satisfies ExportedHandler<AppEnv>;
