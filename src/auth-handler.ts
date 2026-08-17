@@ -166,6 +166,12 @@ export const authHandler = {
         headers: { "content-type": "text/plain; charset=utf-8" },
       });
     }
+    if (url.pathname === "/.well-known/glama.json") {
+      return Response.json({
+        $schema: "https://glama.ai/mcp/schemas/connector.json",
+        maintainers: [{ email: "phillip@localtry.com" }],
+      });
+    }
     if (url.pathname === "/") {
       return Response.json({
         name: "LocalTry MCP",

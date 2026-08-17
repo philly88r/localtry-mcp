@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.philly88r/localtry-mcp",
+  "title": "LocalTry AI CRM",
+  "description": "Operate and customize one tenant-isolated LocalTry CRM from any MCP client.",
+  "repository": {
+    "url": "https://github.com/philly88r/localtry-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://localtry.com/mcp",
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.localtry.com/mcp"
+    }
+  ]
+}

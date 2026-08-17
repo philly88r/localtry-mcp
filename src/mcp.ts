@@ -20,11 +20,23 @@ type McpEnv = Omit<Env, "LOCALTRY_API"> & {
 };
 
 export function createLocalTryMcpServer(env: McpEnv) {
-  const server = new McpServer({ name: "LocalTry", version: "1.0.0" });
+  const server = new McpServer({
+    name: "LocalTry",
+    title: "LocalTry AI CRM",
+    version: "1.0.0",
+    websiteUrl: "https://localtry.com/mcp",
+    icons: [
+      {
+        src: "https://localtry.com/media/localtry-logo.png",
+        mimeType: "image/png",
+      },
+    ],
+  });
 
   server.registerTool(
     "get_workspace_overview",
     {
+      title: "Inspect Workspace",
       description:
         "Inspect the authenticated business's current LocalTry pages, modules, fields, workflows, integrations, and customization history.",
       annotations: {
@@ -48,6 +60,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "search_crm",
     {
+      title: "Search CRM",
       description:
         "Search the authenticated business's CRM. The server chooses safe tenant-scoped queries; raw SQL and tenant identifiers are not accepted.",
       inputSchema: {
@@ -87,6 +100,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "create_or_update_crm_record",
     {
+      title: "Create or Update CRM Record",
       description:
         "Create or update one CRM record for the authenticated business using LocalTry domain rules and validation.",
       inputSchema: {
@@ -121,6 +135,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "plan_workspace_change",
     {
+      title: "Plan Workspace Change",
       description:
         "Inspect the current tenant workspace and create a versioned implementation plan. This does not apply the change.",
       inputSchema: {
@@ -148,6 +163,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "apply_workspace_change",
     {
+      title: "Apply Workspace Change",
       description:
         "Apply an approved workspace plan only to the authenticated tenant. LocalTry validates, tests, versions, and records the change before returning success.",
       inputSchema: {
@@ -176,6 +192,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "list_workspace_versions",
     {
+      title: "List Workspace Versions",
       description:
         "List versioned customization history for the authenticated tenant.",
       inputSchema: {
@@ -203,6 +220,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "restore_workspace_version",
     {
+      title: "Restore Workspace Version",
       description:
         "Restore an earlier workspace version for the authenticated tenant after explicit approval.",
       inputSchema: {
@@ -231,6 +249,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "run_workflow",
     {
+      title: "Run Saved Workflow",
       description:
         "Run one saved workflow belonging to the authenticated tenant. Publishing and communication steps still enforce their own approvals.",
       inputSchema: {
@@ -254,6 +273,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "run_localtry_command",
     {
+      title: "Run LocalTry Command",
       description:
         "Talk to LocalTry Command using the authenticated business's live architecture, CRM data, integrations, and registered actions. It executes real work, verifies results, and asks for missing information instead of inventing it.",
       inputSchema: {
@@ -285,6 +305,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   server.registerTool(
     "get_recent_activity",
     {
+      title: "Review Recent Activity",
       description:
         "Show recent CRM actions, workflow runs, and workspace changes for the authenticated tenant.",
       inputSchema: {
