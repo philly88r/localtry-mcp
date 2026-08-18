@@ -12,6 +12,7 @@ and permission set.
 
 - Search customers, companies, contacts, leads, jobs, estimates, and invoices.
 - Create and update validated CRM records.
+- Create tenant-owned AI agents that become available in Flow Studio.
 - Inspect the complete tenant workspace architecture.
 - Plan and apply tenant-only workspace customizations.
 - Run saved workflows.
@@ -26,8 +27,9 @@ and permission set.
 | `get_workspace_overview` | Inspect the connected business's pages, modules, fields, workflows, integrations, and customization history. |
 | `search_crm` | Search tenant-scoped CRM records without exposing raw SQL. |
 | `create_or_update_crm_record` | Create or update a validated CRM record. |
-| `plan_workspace_change` | Create a versioned customization plan without applying it. |
-| `apply_workspace_change` | Apply an explicitly approved plan to the connected workspace only. |
+| `create_workflow_agent` | Describe and save a tenant-owned AI agent for use in Flow Studio workflows. |
+| `request_workspace_customization` | Submit the same tenant-scoped engineering request as the Customize Workspace prompt. |
+| `get_workspace_customization_status` | Read the latest customization conversation, progress, questions, and result. |
 | `list_workspace_versions` | Review the workspace's customization history. |
 | `restore_workspace_version` | Restore an approved earlier version for the connected workspace. |
 | `run_workflow` | Run one of the business's saved workflows. |

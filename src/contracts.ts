@@ -33,10 +33,13 @@ export type LocalTryOperation =
   | "workspace.overview"
   | "workspace.planChange"
   | "workspace.applyChange"
+  | "workspace.submitRequest"
+  | "workspace.requestStatus"
   | "workspace.listVersions"
   | "workspace.restoreVersion"
   | "crm.search"
   | "crm.mutate"
+  | "agent.create"
   | "workflow.run"
   | "activity.recent"
   | "command.run";

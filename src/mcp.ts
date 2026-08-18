@@ -133,42 +133,44 @@ export function createLocalTryMcpServer(env: McpEnv) {
   );
 
   server.registerTool(
-    "plan_workspace_change",
+    "create_workflow_agent",
     {
-      title: "Plan Workspace Change",
+      title: "Create Workflow Agent",
       description:
-        "Inspect the current tenant workspace and create a versioned implementation plan. This does not apply the change.",
+        "Create a reusable AI agent for the authenticated business. Describe the agent's duties; LocalTry writes and saves its tenant-scoped instruction, then makes the agent available in Flow Studio.",
       inputSchema: {
-        request: z.string().min(10).max(10_000),
+        name: z.string().trim().min(2).max(80),
+        tagline: z.string().trim().max(160).default(""),
+        category: z.enum(["today", "growth", "manage"]).default("growth"),
+        duties: z.string().trim().min(10).max(2_000),
       },
       annotations: {
-        readOnlyHint: true,
+        readOnlyHint: false,
         openWorldHint: false,
         destructiveHint: false,
       },
     },
     async (input) => {
-      const tenant = requireScope(currentTenant(), "workspace:read");
+      const tenant = requireScope(currentTenant(), "workspace:write");
       return textResult(
-        await executeLocalTry(
-          env.LOCALTRY_API,
-          tenant,
-          "workspace.planChange",
-          input,
-        ),
+        await executeLocalTry(env.LOCALTRY_API, tenant, "agent.create", {
+          name: input.name,
+          tagline: input.tagline,
+          category: input.category,
+          idea: input.duties,
+        }),
       );
     },
   );
 
   server.registerTool(
-    "apply_workspace_change",
+    "request_workspace_customization",
     {
-      title: "Apply Workspace Change",
+      title: "Request Workspace Customization",
       description:
-        "Apply an approved workspace plan only to the authenticated tenant. LocalTry validates, tests, versions, and records the change before returning success.",
+        "Submit a plain-language request to the authenticated business's Customize Workspace builder. This is the same action as entering the request in LocalTry and pressing Send request; LocalTry owns the queued engineering work, testing, deployment, history, and restore point.",
       inputSchema: {
-        planId: z.string().min(1).max(200),
-        approvalToken: z.string().min(1).max(500),
+        request: z.string().trim().min(8).max(8_000),
       },
       annotations: {
         readOnlyHint: false,
@@ -182,8 +184,32 @@ export function createLocalTryMcpServer(env: McpEnv) {
         await executeLocalTry(
           env.LOCALTRY_API,
           tenant,
-          "workspace.applyChange",
+          "workspace.submitRequest",
           input,
+        ),
+      );
+    },
+  );
+
+  server.registerTool(
+    "get_workspace_customization_status",
+    {
+      title: "Check Workspace Customization",
+      description:
+        "Read the authenticated business's latest Customize Workspace request, conversation, progress, questions, errors, and completed result.",
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
+    },
+    async () => {
+      const tenant = requireScope(currentTenant(), "workspace:read");
+      return textResult(
+        await executeLocalTry(
+          env.LOCALTRY_API,
+          tenant,
+          "workspace.requestStatus",
         ),
       );
     },

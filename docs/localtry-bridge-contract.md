@@ -75,3 +75,18 @@ same domain services as the LocalTry application and must create an audit event.
 The CRM must never expose connector secrets, password hashes, session tokens,
 OAuth refresh tokens, raw database access, or cross-tenant search through this
 bridge.
+
+Agent creation uses the `agent.create` operation. The public MCP Worker sends a
+validated name, tagline, category, and description of the agent's duties. The
+CRM reuses its existing tenant-scoped agent service to produce and store the
+hidden instruction. The MCP Worker never receives a D1 binding or database
+credential, and the saved agent becomes available through the normal Flow
+Studio agent roster.
+
+Engineering customizations use `workspace.submitRequest`, which calls the same
+tenant-scoped conversation and queue service as the Customize Workspace prompt
+in the LocalTry application. `workspace.requestStatus` reads that request's
+saved conversation and progress. MCP does not implement, test, or deploy the
+customization itself. The public MCP server intentionally does not expose the
+legacy plan/apply operations, so there is only one supported route for a custom
+feature request.
