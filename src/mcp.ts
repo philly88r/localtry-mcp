@@ -38,7 +38,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
     {
       title: "Inspect Workspace",
       description:
-        "Inspect the authenticated business's current LocalTry pages, modules, fields, workflows, integrations, and customization history.",
+        "Inspect the authenticated business's complete LocalTry feature catalog: every registered page, action, agent, integration, workflow, tenant addition, and customization history. Secrets and raw database access are never returned.",
       annotations: {
         readOnlyHint: true,
         openWorldHint: false,
@@ -52,6 +52,45 @@ export function createLocalTryMcpServer(env: McpEnv) {
           env.LOCALTRY_API,
           tenant,
           "workspace.overview",
+        ),
+      );
+    },
+  );
+
+  server.registerTool(
+    "search_localtry_features",
+    {
+      title: "Find LocalTry Feature",
+      description:
+        "Search the authenticated business's live LocalTry capability registry before choosing an action. Returns exact pages, actions, agents, integrations, additions, inputs, outputs, and persistence behavior without exposing secrets.",
+      inputSchema: {
+        query: z.string().trim().min(2).max(500),
+        kind: z
+          .enum([
+            "page",
+            "agent",
+            "action",
+            "integration",
+            "addition",
+            "runtime",
+          ])
+          .optional(),
+        limit: z.number().int().min(1).max(20).default(10),
+      },
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
+    },
+    async input => {
+      const tenant = requireScope(currentTenant(), "workspace:read");
+      return textResult(
+        await executeLocalTry(
+          env.LOCALTRY_API,
+          tenant,
+          "workspace.search",
+          input,
         ),
       );
     },
@@ -301,7 +340,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
     {
       title: "Run LocalTry Command",
       description:
-        "Talk to LocalTry Command using the authenticated business's live architecture, CRM data, integrations, and registered actions. It executes real work, verifies results, and asks for missing information instead of inventing it.",
+        "Use any AI-ready LocalTry feature through the authenticated business's live capability registry. LocalTry chooses and executes its own tenant-scoped domain action, verifies results, and asks for missing information instead of inventing it. Search the feature registry first when the requested capability is unclear.",
       inputSchema: {
         prompt: z.string().min(1).max(4_000),
         history: z

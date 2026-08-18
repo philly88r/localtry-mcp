@@ -31,6 +31,7 @@ export const authorizationExchangeSchema = tenantAuthSchema.extend({
 
 export type LocalTryOperation =
   | "workspace.overview"
+  | "workspace.search"
   | "workspace.planChange"
   | "workspace.applyChange"
   | "workspace.submitRequest"

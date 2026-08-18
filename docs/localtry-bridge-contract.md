@@ -90,3 +90,9 @@ saved conversation and progress. MCP does not implement, test, or deploy the
 customization itself. The public MCP server intentionally does not expose the
 legacy plan/apply operations, so there is only one supported route for a custom
 feature request.
+
+Complete feature discovery uses `workspace.overview` and `workspace.search`.
+They read LocalTry's shared capability catalog, which is the same source used by
+Command, Flow Studio, Workspace Builder, and saved agents. AI-ready work still
+runs through LocalTry's registered domain actions; MCP cannot call a raw router,
+execute SQL, supply a tenant ID, or bypass LocalTry validation and approvals.

@@ -14,7 +14,8 @@ and permission set.
 - Create and update validated CRM records.
 - Create tenant-owned AI agents that become available in Flow Studio.
 - Inspect the complete tenant workspace architecture.
-- Plan and apply tenant-only workspace customizations.
+- Search every registered page, action, agent, integration, and tenant addition.
+- Submit tenant-only workspace customizations through LocalTry Builder.
 - Run saved workflows.
 - Ask LocalTry Command to carry out multi-step business operations.
 - Review customization versions and restore an earlier version.
@@ -25,6 +26,7 @@ and permission set.
 | Tool | Purpose |
 | --- | --- |
 | `get_workspace_overview` | Inspect the connected business's pages, modules, fields, workflows, integrations, and customization history. |
+| `search_localtry_features` | Find the exact registered LocalTry page, action, agent, integration, or tenant addition before acting. |
 | `search_crm` | Search tenant-scoped CRM records without exposing raw SQL. |
 | `create_or_update_crm_record` | Create or update a validated CRM record. |
 | `create_workflow_agent` | Describe and save a tenant-owned AI agent for use in Flow Studio workflows. |
