@@ -9,6 +9,7 @@ import {
   type PendingAuthorization,
 } from "./contracts";
 import type { LocalTryRpcService } from "./localtry-client";
+import { authorizationResponseRedirect } from "./oauth-redirect";
 
 type AppEnv = Omit<Env, "LOCALTRY_API"> & {
   LOCALTRY_API: LocalTryRpcService;
@@ -149,7 +150,10 @@ async function completeLocalTryAuthorization(request: Request, env: AppEnv) {
   return new Response(null, {
     status: 302,
     headers: {
-      location: redirectTo,
+      location: authorizationResponseRedirect(
+        redirectTo,
+        new URL(request.url).origin,
+      ),
       "set-cookie": handoffCookie("", 0),
     },
   });
