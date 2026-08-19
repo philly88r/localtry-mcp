@@ -22,6 +22,9 @@ jobs, estimates, invoices, documents, and workflows; create or update validated
 records; run saved workflows; inspect recent activity; and operate LocalTry
 Command for verified multi-step work.
 
+The remote MCP server is available now for compatible AI clients. A dedicated
+LocalTry ChatGPT plugin is coming soon and is currently in OpenAI review.
+
 Owners can also inspect the current workspace architecture, create a versioned
 customization plan, approve and apply it, review prior versions, and restore an
 earlier version. Every authorization is bound to one verified LocalTry user,
@@ -37,6 +40,7 @@ never expose raw SQL, connector credentials, passwords, or session tokens.
 - Terms: https://localtry.com/terms
 - Support: https://localtry.com/support
 - Logo: https://localtry.com/media/localtry-logo.png
+- ChatGPT plugin status: submitted to OpenAI and awaiting review
 
 ## Categories
 

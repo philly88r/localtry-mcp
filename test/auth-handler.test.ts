@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { mcpDirectoryMetadata } from "../src/directory-metadata";
 import { authorizationResponseRedirect } from "../src/oauth-redirect";
 
 describe("OAuth authorization response", () => {
@@ -13,5 +14,16 @@ describe("OAuth authorization response", () => {
     expect(result.searchParams.get("code")).toBe("authorization-code");
     expect(result.searchParams.get("state")).toBe("client-state");
     expect(result.searchParams.get("iss")).toBe("https://mcp.localtry.com");
+  });
+});
+
+describe("MCP directory discovery", () => {
+  it("publishes the canonical remote endpoint metadata", () => {
+    expect(mcpDirectoryMetadata).toMatchObject({
+      name: "LocalTry AI CRM",
+      url: "https://mcp.localtry.com/mcp",
+      transport: "streamable-http",
+      authentication: "OAuth 2.1",
+    });
   });
 });

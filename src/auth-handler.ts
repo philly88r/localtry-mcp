@@ -3,6 +3,7 @@ import {
   type AuthRequest,
   type OAuthHelpers,
 } from "@cloudflare/workers-oauth-provider";
+import { mcpDirectoryMetadata } from "./directory-metadata";
 import {
   authorizationExchangeSchema,
   supportedScopes,
@@ -175,6 +176,9 @@ export const authHandler = {
         $schema: "https://glama.ai/mcp/schemas/connector.json",
         maintainers: [{ email: "phillip@localtry.com" }],
       });
+    }
+    if (url.pathname === "/.well-known/mcp.json") {
+      return Response.json(mcpDirectoryMetadata);
     }
     if (url.pathname === "/") {
       return Response.json({
