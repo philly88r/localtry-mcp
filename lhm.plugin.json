@@ -1,0 +1,223 @@
+{
+  "identifier": "philly88r-localtry-mcp",
+  "name": "LocalTry AI CRM",
+  "version": "1.0.1",
+  "author": "LocalTry",
+  "authorUrl": "https://localtry.com",
+  "description": "Tenant-isolated MCP server for LocalTry, the customizable AI CRM and business operating system. Inspect the authenticated workspace, search CRM data, create or update records, create workflow agents, request and restore tenant-specific customizations, run saved workflows and commands, and review recent activity without exposing secrets or another business's data.",
+  "homepage": "https://localtry.com/mcp",
+  "icon": "https://localtry.com/media/localtry-logo.png",
+  "cloudEndpoint": "https://mcp.localtry.com/mcp",
+  "tags": [
+    "localtry",
+    "crm",
+    "ai-crm",
+    "workflow-automation",
+    "business-operations",
+    "remote-mcp",
+    "oauth"
+  ],
+  "prompts": [],
+  "resources": [],
+  "tools": [
+    {
+      "name": "get_workspace_overview",
+      "title": "Inspect Workspace",
+      "description": "Inspect the authenticated business's complete LocalTry feature catalog: every registered page, action, agent, integration, workflow, tenant addition, and customization history. Secrets and raw database access are never returned.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false }
+    },
+    {
+      "name": "search_localtry_features",
+      "title": "Find LocalTry Feature",
+      "description": "Search the authenticated business's live LocalTry capability registry before choosing an action. Returns exact pages, actions, agents, integrations, additions, inputs, outputs, and persistence behavior without exposing secrets.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string", "minLength": 2, "maxLength": 500 },
+          "kind": { "type": "string", "enum": ["page", "agent", "action", "integration", "addition", "runtime"] },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 20, "default": 10 }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_crm",
+      "title": "Search CRM",
+      "description": "Search the authenticated business's CRM. The server chooses safe tenant-scoped queries; raw SQL and tenant identifiers are not accepted.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "entityTypes": {
+            "type": "array",
+            "maxItems": 9,
+            "items": { "type": "string", "enum": ["customers", "companies", "contacts", "leads", "jobs", "estimates", "invoices", "documents", "workflows"] }
+          },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 25 }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "create_or_update_crm_record",
+      "title": "Create or Update CRM Record",
+      "description": "Create or update one CRM record for the authenticated business using LocalTry domain rules and validation.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": false, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entityType": { "type": "string", "enum": ["customer", "company", "contact", "lead", "job", "estimate", "invoice", "document"] },
+          "recordId": { "type": "integer", "minimum": 1 },
+          "values": { "type": "object", "additionalProperties": true },
+          "reason": { "type": "string", "minLength": 1, "maxLength": 500 }
+        },
+        "required": ["entityType", "values", "reason"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "create_workflow_agent",
+      "title": "Create Workflow Agent",
+      "description": "Create a reusable AI agent for the authenticated business. Describe the agent's duties; LocalTry writes and saves its tenant-scoped instruction, then makes the agent available in Flow Studio.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": false, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 80 },
+          "tagline": { "type": "string", "maxLength": 160, "default": "" },
+          "category": { "type": "string", "enum": ["today", "growth", "manage"], "default": "growth" },
+          "duties": { "type": "string", "minLength": 10, "maxLength": 2000 }
+        },
+        "required": ["name", "duties"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "request_workspace_customization",
+      "title": "Request Workspace Customization",
+      "description": "Submit a plain-language request to the authenticated business's Customize Workspace builder. LocalTry owns the queued engineering work, testing, deployment, history, and restore point.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": false, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": {
+        "type": "object",
+        "properties": { "request": { "type": "string", "minLength": 8, "maxLength": 8000 } },
+        "required": ["request"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_workspace_customization_status",
+      "title": "Check Workspace Customization",
+      "description": "Read the authenticated business's latest Customize Workspace request, conversation, progress, questions, errors, and completed result.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false }
+    },
+    {
+      "name": "list_workspace_versions",
+      "title": "List Workspace Versions",
+      "description": "List versioned customization history for the authenticated tenant.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": {
+        "type": "object",
+        "properties": { "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 25 } },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "restore_workspace_version",
+      "title": "Restore Workspace Version",
+      "description": "Restore an earlier workspace version for the authenticated tenant after explicit approval.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": false, "openWorldHint": false, "destructiveHint": true },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "versionId": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "approvalToken": { "type": "string", "minLength": 1, "maxLength": 500 }
+        },
+        "required": ["versionId", "approvalToken"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "run_workflow",
+      "title": "Run Saved Workflow",
+      "description": "Run one saved workflow belonging to the authenticated tenant. Publishing and communication steps still enforce their own approvals.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": false, "openWorldHint": true, "destructiveHint": true },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "workflowId": { "type": "integer", "minimum": 1 },
+          "input": { "type": "object", "additionalProperties": true, "default": {} }
+        },
+        "required": ["workflowId"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "run_localtry_command",
+      "title": "Run LocalTry Command",
+      "description": "Use any AI-ready LocalTry feature through the authenticated business's live capability registry. LocalTry chooses and executes its own tenant-scoped domain action, verifies results, and asks for missing information instead of inventing it.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": false, "openWorldHint": true, "destructiveHint": true },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "prompt": { "type": "string", "minLength": 1, "maxLength": 4000 },
+          "history": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": { "type": "string", "enum": ["user", "assistant"] },
+                "content": { "type": "string", "minLength": 1, "maxLength": 8000 }
+              },
+              "required": ["role", "content"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["prompt"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_recent_activity",
+      "title": "Review Recent Activity",
+      "description": "Show recent CRM actions, workflow runs, and workspace changes for the authenticated tenant.",
+      "securitySchemes": [{ "type": "oauth2", "scopes": [] }],
+      "_meta": { "securitySchemes": [{ "type": "oauth2", "scopes": [] }] },
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "inputSchema": {
+        "type": "object",
+        "properties": { "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 25 } },
+        "additionalProperties": false
+      }
+    }
+  ]
+}
