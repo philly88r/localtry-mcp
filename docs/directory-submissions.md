@@ -51,7 +51,7 @@ data in a listing.
 | --- | --- | --- |
 | MCPServerHub.com | Submitted 2026-08-19 | Tally confirmation: `Done! Thanks for your submission!` |
 | MCP Market | Already in free review queue | The free GitHub-repository intake reported that the repository is already queued; do not resubmit |
-| LobeHub | Published version 1.0.1; repository enrichment processing | Approved GitHub authorization completed on 2026-08-20. `@lobehub/market-cli` published `philly88r-localtry-mcp@1.0.1` from the public repository; recheck the marketplace after enrichment completes. |
+| LobeHub | Published version 1.0.1; validation pending | Approved GitHub authorization completed on 2026-08-20. `@lobehub/market-cli` published `philly88r-localtry-mcp@1.0.1` from the public repository. The listing is claimed and currently reports `not_validated`; recheck after marketplace processing completes. |
 
 ## Submission rules
 
