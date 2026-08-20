@@ -1,6 +1,6 @@
 # LocalTry MCP distribution tracker
 
-Last verified: 2026-08-19.
+Last verified: 2026-08-20.
 
 This tracker is only for the LocalTry MCP server and the forthcoming LocalTry
 ChatGPT plugin. It is separate from the CRM affiliate-program tracker and the
@@ -51,7 +51,7 @@ data in a listing.
 | --- | --- | --- |
 | MCPServerHub.com | Submitted 2026-08-19 | Tally confirmation: `Done! Thanks for your submission!` |
 | MCP Market | Already in free review queue | The free GitHub-repository intake reported that the repository is already queued; do not resubmit |
-| LobeHub | Manifest complete; GitHub verification blocked on broad OAuth scope approval | LobeHub login is complete and `lhm.plugin.json` contains the exact 12-tool OAuth server declaration. Final publishing requires its GitHub OAuth app to read private repositories and write workflow files in addition to public-repository verification; do not grant those scopes without explicit approval. |
+| LobeHub | Published version 1.0.1; repository enrichment processing | Approved GitHub authorization completed on 2026-08-20. `@lobehub/market-cli` published `philly88r-localtry-mcp@1.0.1` from the public repository; recheck the marketplace after enrichment completes. |
 
 ## Submission rules
 
