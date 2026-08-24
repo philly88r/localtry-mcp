@@ -19,7 +19,8 @@
   "type": "module",
   "scripts": {
     "check": "npm run typecheck && npm test",
-    "deploy": "wrangler deploy",
+    "verify:deploy-source": "node scripts/verify-deploy-source.mjs",
+    "deploy": "npm run verify:deploy-source && wrangler deploy",
     "dev": "wrangler dev",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
