@@ -35,7 +35,7 @@ data in a listing.
 | Priority | Directory | Submission route | Cost | Status | Positioning angle |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Smithery | https://smithery.ai/servers/pmatthews/localtry-ai-crm/releases | Free listing | Submitted; review pending | Release `e0f104ea-6866-4b2f-bc52-b7e289b7e317` accepted by the registry |
-| 2 | Glama | https://glama.ai/mcp/servers | Free listing | Submitted; review pending | Open-source server was submitted; Glama reports the remote endpoint already exists, so do not create another connector |
+| 2 | Glama | https://glama.ai/mcp/connectors/io.github.philly88r/localtry-mcp | Free listing | Ownership verified; OAuth health passed 2026-08-31 | Existing connector is claimed by `@philly88r`; its OAuth test profile is bound only to the empty `LocalTry Glama Test` workspace. Do not create another connector or enable Glama Gateway. |
 | 3 | MCP.so | https://mcp.so/submit?type=server | $39 current submission fee | Skipped; paid-only | No payment was authorized or made |
 | 4 | PulseMCP | https://www.pulsemcp.com/servers?q=LocalTry | Free curation | Queued through official-registry ingestion | PulseMCP currently auto-ingests Official Registry metadata; recheck after its pipeline refreshes |
 | 5 | MCP.Directory | https://mcp.directory/submit | Free review | Submitted 2026-08-19 | Confirmation states editorial review and publication within 24 hours |
