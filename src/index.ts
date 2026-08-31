@@ -4,6 +4,7 @@ import { authHandler } from "./auth-handler";
 import { supportedScopes } from "./contracts";
 import { createLocalTryMcpServer } from "./mcp";
 import type { LocalTryRpcService } from "./localtry-client";
+import { withCodexIssuerCompatibility } from "./oauth-metadata";
 
 const MCP_ORIGIN = "https://mcp.localtry.com";
 const MCP_RESOURCE = `${MCP_ORIGIN}/mcp`;
@@ -39,7 +40,7 @@ const protectedMcpHandler = {
   },
 } satisfies ExportedHandler<AppEnv>;
 
-export default new OAuthProvider<AppEnv>({
+const oauthProvider = new OAuthProvider<AppEnv>({
   apiRoute: "/mcp",
   apiHandler: protectedMcpHandler,
   defaultHandler: authHandler,
@@ -69,3 +70,10 @@ export default new OAuthProvider<AppEnv>({
     );
   },
 });
+
+export default {
+  async fetch(request, env, ctx) {
+    const response = await oauthProvider.fetch(request, env, ctx);
+    return withCodexIssuerCompatibility(request, response);
+  },
+} satisfies ExportedHandler<AppEnv>;
