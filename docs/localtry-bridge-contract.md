@@ -96,3 +96,11 @@ They read LocalTry's shared capability catalog, which is the same source used by
 Command, Flow Studio, Workspace Builder, and saved agents. AI-ready work still
 runs through LocalTry's registered domain actions; MCP cannot call a raw router,
 execute SQL, supply a tenant ID, or bypass LocalTry validation and approvals.
+
+Social Research uses `socialResearch.run`. The public tool accepts only a
+bounded query and supported public platform. The CRM derives the workspace and
+user from the OAuth actor, adds its own tenant tag, calls the existing Social
+Research service binding, validates the returned job, and persists it through
+the same `social_research_runs` path as the LocalTry Research page. Caller
+tenant selectors, arbitrary scraper parameters, and malformed provider results
+are rejected before any tenant row is written.

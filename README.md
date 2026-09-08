@@ -35,6 +35,7 @@ and permission set.
 | `list_workspace_versions` | Review the workspace's customization history. |
 | `restore_workspace_version` | Restore an approved earlier version for the connected workspace. |
 | `run_workflow` | Run one of the business's saved workflows. |
+| `run_social_research` | Start one public social or web research search and save it in the connected workspace. |
 | `run_localtry_command` | Use LocalTry Command for verified, multi-step CRM and business operations. |
 | `get_recent_activity` | Review recent CRM, workflow, and customization activity. |
 

@@ -16,7 +16,7 @@ run approved workflows, and customize your business workspace.
 **Long description:**
 
 LocalTry connects ChatGPT to one authorized LocalTry business at a time. Use it
-to search customers, companies, contacts, leads, jobs, estimates, invoices,
+to run saved public Social Research, search customers, companies, contacts, leads, jobs, estimates, invoices,
 documents, and saved workflows; create or update validated CRM records; inspect
 the business's current workspace architecture; run saved workflows; and review
 recent business activity.
@@ -51,6 +51,7 @@ cross-business data.
 5. Plan a customer-renewal dashboard for my workspace, but do not apply it yet.
 6. Show me my recent workspace versions and explain what changed.
 7. Run my saved new-lead follow-up workflow with this lead as the input.
+8. Research current customer questions about cash flow on Reddit and save the run in LocalTry.
 
 ## Positive test cases
 
@@ -94,6 +95,14 @@ cross-business data.
 - **Expected result shape:** Timestamped tenant-scoped activity items.
 - **Fixture:** Review tenant with seeded audit events.
 
+### 6. Run Social Research
+
+- **Prompt:** Research current customer questions about cash flow on Reddit and save the run in LocalTry.
+- **Expected tool:** `run_social_research`
+- **Expected behavior:** Queue one public Reddit search and persist it only in the OAuth-approved review workspace.
+- **Expected result shape:** Saved job identifier, state, bounded request, and analysis status.
+- **Fixture:** Review tenant with Social Research available.
+
 ## Negative test cases
 
 ### 1. Cross-tenant access attempt
@@ -116,8 +125,8 @@ cross-business data.
 
 ## Initial release notes
 
-Initial public submission of the LocalTry MCP-backed plugin. It provides ten
-tenant-isolated tools for CRM search and mutation, workspace inspection and
+The 1.1 release adds tenant-isolated Social Research and retains the existing
+tools for CRM search and mutation, workspace inspection and
 versioning, approved customization, saved workflow execution, business command
 execution, and recent activity. OAuth, PKCE, refresh tokens, dynamic client
 registration, private Worker RPC, role enforcement, tool discovery, and live

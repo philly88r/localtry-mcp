@@ -54,6 +54,44 @@ describe("tenant boundary", () => {
     });
   });
 
+  it.each([
+    ["synthetic-agency-mcp-9201", "agency", 9201],
+    ["synthetic-service-mcp-9202", "service", 9202],
+  ])(
+    "binds Social Research for %s (%s) to its distinct OAuth workspace",
+    async (_fixture, _profile, businessId) => {
+      let body: Parameters<LocalTryRpcService["execute"]>[0] | undefined;
+      const service: LocalTryRpcService = {
+        async health() {
+          return { ok: true };
+        },
+        async exchangeAuthorizationCode() {
+          throw new Error("not used");
+        },
+        async execute(input) {
+          body = input;
+          return { ok: true };
+        },
+      };
+      await executeLocalTry(
+        service,
+        {
+          ...tenant,
+          userId: String(businessId + 100),
+          businessId,
+          scopes: [...tenant.scopes, "assistant:run"],
+        },
+        "socialResearch.run",
+        { query: "small business trends", platform: "web" },
+      );
+      expect(body).toMatchObject({
+        actor: { businessId },
+        operation: "socialResearch.run",
+        input: { query: "small business trends", platform: "web" },
+      });
+    },
+  );
+
   it("propagates a private RPC authorization failure", async () => {
     const service: LocalTryRpcService = {
       async health() {

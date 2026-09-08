@@ -43,6 +43,7 @@ export type LocalTryOperation =
   | "agent.create"
   | "workflow.run"
   | "activity.recent"
+  | "socialResearch.run"
   | "command.run";
 
 export type PendingAuthorization = {

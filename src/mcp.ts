@@ -23,7 +23,7 @@ export function createLocalTryMcpServer(env: McpEnv) {
   const server = new McpServer({
     name: "LocalTry",
     title: "LocalTry AI CRM",
-    version: "1.0.0",
+    version: "1.1.0",
     websiteUrl: "https://localtry.com/mcp",
     icons: [
       {
@@ -331,6 +331,48 @@ export function createLocalTryMcpServer(env: McpEnv) {
       const tenant = requireScope(currentTenant(), "workflows:run");
       return textResult(
         await executeLocalTry(env.LOCALTRY_API, tenant, "workflow.run", input),
+      );
+    },
+  );
+
+  server.registerTool(
+    "run_social_research",
+    {
+      title: "Run Social Research",
+      description:
+        "Start one tenant-scoped public Social Research search and save it in the authenticated LocalTry workspace. The workspace comes from OAuth and cannot be supplied by the caller.",
+      inputSchema: {
+        query: z.string().trim().min(2).max(500),
+        platform: z
+          .enum([
+            "web",
+            "instagram",
+            "facebook",
+            "tiktok",
+            "youtube",
+            "reddit",
+            "linkedin",
+            "pinterest",
+            "bluesky",
+            "x",
+          ])
+          .default("web"),
+      },
+      annotations: {
+        readOnlyHint: false,
+        openWorldHint: true,
+        destructiveHint: false,
+      },
+    },
+    async (input) => {
+      const tenant = requireScope(currentTenant(), "assistant:run");
+      return textResult(
+        await executeLocalTry(
+          env.LOCALTRY_API,
+          tenant,
+          "socialResearch.run",
+          input,
+        ),
       );
     },
   );

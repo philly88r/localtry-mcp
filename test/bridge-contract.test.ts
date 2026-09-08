@@ -20,6 +20,7 @@ const PUBLISHED_TOOLS = [
   "list_workspace_versions",
   "restore_workspace_version",
   "run_workflow",
+  "run_social_research",
   "run_localtry_command",
   "get_recent_activity",
 ] as const;
@@ -40,6 +41,7 @@ const CRM_SUPPORTED_OPERATIONS: LocalTryOperation[] = [
   "agent.create",
   "workflow.run",
   "activity.recent",
+  "socialResearch.run",
   "command.run",
 ];
 
@@ -55,6 +57,7 @@ const USED_OPERATIONS: LocalTryOperation[] = [
   "workspace.listVersions",
   "workspace.restoreVersion",
   "workflow.run",
+  "socialResearch.run",
   "command.run",
   "activity.recent",
 ];
@@ -63,13 +66,24 @@ function source() {
   return readFileSync(resolve("src/mcp.ts"), "utf8");
 }
 
+function manifestTools() {
+  const manifest = JSON.parse(readFileSync(resolve("lhm.plugin.json"), "utf8")) as {
+    tools: Array<{ name: string }>;
+  };
+  return manifest.tools.map(tool => tool.name);
+}
+
 describe("published MCP tool surface", () => {
   it("exposes exactly the reviewed tool set", () => {
     const registered = [...source().matchAll(/server\.registerTool\(\s*"([^"]+)"/g)].map(
       match => match[1],
     );
     expect(registered).toEqual([...PUBLISHED_TOOLS]);
-    expect(registered).toHaveLength(12);
+    expect(registered).toHaveLength(13);
+  });
+
+  it("keeps the public metadata manifest on the same tool contract", () => {
+    expect(manifestTools()).toEqual([...PUBLISHED_TOOLS]);
   });
 
   it("never exposes the legacy plan/apply operations", () => {
@@ -97,7 +111,7 @@ describe("CRM bridge contract", () => {
 
   it("requires a scope for every mutating operation", () => {
     const body = source();
-    for (const operation of ["crm.mutate", "agent.create", "workspace.submitRequest", "workspace.restoreVersion"]) {
+    for (const operation of ["crm.mutate", "agent.create", "workspace.submitRequest", "workspace.restoreVersion", "socialResearch.run"]) {
       const index = body.indexOf(`"${operation}"`);
       expect(index, `${operation} is not sent by any tool`).toBeGreaterThan(-1);
       // requireScope must appear before the execute call for that operation.
