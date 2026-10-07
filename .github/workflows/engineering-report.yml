@@ -1,0 +1,46 @@
+name: Engineering CI report
+
+# Reports CI results for LocalTry engineering pull requests back to LocalTry,
+# which merges passing changes (through its GitHub App) or sends failures back
+# to the engineering runner for an automatic repair. workflow_run executes this
+# file from main, never from the pull request, so untrusted pull-request code
+# cannot read the reporting secret.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+jobs:
+  report:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      startsWith(github.event.workflow_run.head_branch, 'engineering/') &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: engineering
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Report CI result
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ENGINEERING_RELEASE_SECRET: ${{ secrets.ENGINEERING_RELEASE_SECRET }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: node .github/scripts/engineering-release.mjs ci-report
