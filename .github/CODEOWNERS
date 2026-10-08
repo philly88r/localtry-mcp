@@ -1,0 +1,6 @@
+# Delivery pipeline. LocalTry engineering never merges changes to these paths
+# automatically; they need the owner's review.
+/.github/ @philly88r
+/scripts/deploy* @philly88r
+/scripts/verify-* @philly88r
+/scripts/deployment-workflow-holds.mjs @philly88r
